@@ -1,0 +1,10 @@
+.ipynb_checkpoints/
+env.py
+.DS_Store
+__pycache__
+.vscode/
+package.json
+*.csv
+*.xlsx
+*.tgz
+my_dictionary_simple.txt
