@@ -80,28 +80,18 @@ def get_telco_data_two_year(cached=False):
     return df
 
 
-def prep_acquired_telco(get_telco_data_two_year):
-    '''
-    This function will both acquire and prep the modified telco dataset (only 2-yr contracts)
-    and return the train, validate, and test datasets. It will read off a .csv that is in the working directory
-    if it exists, otherwise the function will pull the data from the Codeup db.
-    '''
-
-    # Cleaning the total_costs column by dropping empty values:
-    df.drop(df[df['total_charges'] == " "].index, inplace = True)
-
-    #
-
-
 # Preparing the data:
 # The prep function returning the train, validate and test splits:
-def prep_acquired_telco(df):
+def prep_acquired_telco():
     '''
     This function will both acquire and prep the modified telco dataset (only 2-yr contracts)
     and return the train, validate, and test datasets. It will read off a .csv that is in the working directory
     if it exists, otherwise the function will pull the data from the Codeup db.
     '''
+    # First, I need to acquire the dataframe within this function:
+    df = pd.read_csv('telco_customers_df_two_year.csv', index_col = 0)
 
+    
     # Cleaning the total_costs column by dropping empty values:
     df.drop(df[df['total_charges'] == " "].index, inplace = True)
     
@@ -121,4 +111,4 @@ def prep_acquired_telco(df):
     print(f'Shape of test df: {test.shape}')
     return train, validate, test
 
-print('wrangle functions loaded successfully')
+print('wrangle.py functions loaded successfully.')
