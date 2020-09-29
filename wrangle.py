@@ -109,6 +109,27 @@ def prep_acquired_telco():
     print(f'Shape of train df: {train.shape}')
     print(f'Shape of validate df: {validate.shape}')
     print(f'Shape of test df: {test.shape}')
+    return telco_scaled_data(train, validate, test)
+
+
+# Function that scales data:
+
+def telco_scaled_data(train, validate, test):
+    # 1. Creating the scaler object:
+
+    scaler_ss = sklearn.preprocessing.StandardScaler()
+
+    # 2. Fitting ONLY do the train dataset. Remember, this is only useful on continuous variables, not categorical variables:
+    scaler_ss.fit(train[['total_charges', 'monthly_charges', 'tenure']])
+
+    # 3. Now use the object on all three datasets. Remember, I'm using this object which was fitted to the train dataset:
+    train[['total_charges_scaled', 'monthly_charges_scaled', 'tenure_scaled']] = scaler_ss.transform(train[['total_charges', 'monthly_charges', 'tenure']])
+    validate[['total_charges_scaled', 'monthly_charges_scaled', 'tenure_scaled']] = scaler_ss.transform(validate[['total_charges', 'monthly_charges', 'tenure']])
+    test[['total_charges_scaled', 'monthly_charges_scaled', 'tenure_scaled']] = scaler_ss.transform(test[['total_charges', 'monthly_charges', 'tenure']])
+
     return train, validate, test
+
+
+
 
 print('wrangle.py functions loaded successfully.')
