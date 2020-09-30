@@ -5,19 +5,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-import env
+
 import os
 
 # Turn off warnings
 import warnings
 warnings.filterwarnings("ignore")
 
-# libraries possibly needed for preparing the data:
+# split_scale
+# import split_scale
+
+# libraries needed for preparing the data:
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder
+# from sklearn.preprocessing import StandardScaler, QuantileTransformer, PowerTransformer, RobustScaler, MinMaxScaler
+# from sklearn.preprocessing import MinMaxScaler
+import sklearn.preprocessing
 
 # Setting up the user credentials:
 from env import host, user, password
@@ -68,7 +71,7 @@ def telco_data_two_year():
 #     return df
 
 
-def get_telco_data_two_year(cached=False):
+def get_telco_data_two_year(cached = False):
     '''
     This function reads in mall customer data from Codeup database if cached == False 
     or if cached == True reads in mall customer df from a csv file, returns df
@@ -78,6 +81,45 @@ def get_telco_data_two_year(cached=False):
     else:
         df = pd.read_csv('telco_customers_df_two_year.csv', index_col=0)
     return df
+
+
+
+# Adding the scaled columns to the telco dataframe:
+
+def add_scaled_columns(train, validate, test, scaler, columns_to_scale):
+    new_column_names = [c + '_scaled' for c in columns_to_scale]
+    scaler.fit(train[columns_to_scale])
+
+    train = pd.concat([
+        train,
+        pd.DataFrame(scaler.transform(train[columns_to_scale]), columns=new_column_names, index=train.index),
+    ], axis=1)
+    validate = pd.concat([
+        validate,
+        pd.DataFrame(scaler.transform(validate[columns_to_scale]), columns=new_column_names, index=validate.index),
+    ], axis=1)
+    test = pd.concat([
+        test,
+        pd.DataFrame(scaler.transform(test[columns_to_scale]), columns=new_column_names, index=test.index),
+    ], axis=1)
+
+    return train, validate, test
+
+
+
+# Adding the scaled data to the dataframe, returning the train, validate and test dataframes.
+
+def scale_telco_data(train, test, validate):
+    from sklearn.preprocessing import StandardScaler, QuantileTransformer, PowerTransformer, RobustScaler, MinMaxScaler
+
+    train, validate, test = add_scaled_columns(
+        train,
+        test,
+        validate,
+        scaler = sklearn.preprocessing.MinMaxScaler(),
+        columns_to_scale=['total_charges', 'monthly_charges', 'tenure'],
+    )
+    return train, validate, test
 
 
 # Preparing the data:
@@ -109,12 +151,15 @@ def prep_acquired_telco():
     print(f'Shape of train df: {train.shape}')
     print(f'Shape of validate df: {validate.shape}')
     print(f'Shape of test df: {test.shape}')
-    return telco_scaled_data(train, validate, test)
+    return scale_telco_data(train, validate, test)
 
 
 # Function that scales data:
 
 def telco_scaled_data(train, validate, test):
+    
+    from sklearn.preprocessing import StandardScaler
+    
     # 1. Creating the scaler object:
 
     scaler_ss = sklearn.preprocessing.StandardScaler()
@@ -130,13 +175,41 @@ def telco_scaled_data(train, validate, test):
     return train, validate, test
 
 
-# Grades wrangle (acquire and prep) function:
-def wrangle_grades():
-    grades = pd.read_csv("student_grades.csv")
-    grades.drop(columns="student_id", inplace=True)
-    grades.replace(r"^\s*$", np.nan, regex=True, inplace=True)
-    df = grades.dropna().astype("int")
-    return df
+######################### Complete Wrangle for Telco #########################
+def wrangle_telco():
+    '''
+    This function will read the telco data from a csv file or the codeup db,
+    preps the columns called by the two year telco function (total_charges changed to int),
+    and returns the split train, validate and test dataframes
+    '''
+    df = get_telco_data_two_year()
+
+    # Cleaning the total_costs column by dropping empty values:
+    df.tenure.replace(0, 1, inplace=True)
+    df.total_charges = df.total_charges.replace(" ", np.nan)
+    df.total_charges = df.total_charges.fillna(df.monthly_charges)
+    df.total_charges = df.total_charges.astype(float)
+    
+    # Finally, splitting my data based on the target variable of tenure:
+    train_validate, test = train_test_split(df, test_size=.15, random_state=123)
+    
+    # Splitting the train_validate set into the separate train and validate datasets.
+    train, validate = train_test_split(train_validate, test_size=.15, random_state=123)
+    
+    # Printing the shape of each dataframe:
+    print(f'Shape of train df: {train.shape}')
+    print(f'Shape of validate df: {validate.shape}')
+    print(f'Shape of test df: {test.shape}')
+    return scale_telco_data(train, validate, test)
+
+
+# Grades wrangle (acquire and prep) function for explore lesson walkthrough:
+# def wrangle_grades():
+#     grades = pd.read_csv("student_grades.csv")
+#     grades.drop(columns="student_id", inplace=True)
+#     grades.replace(r"^\s*$", np.nan, regex=True, inplace=True)
+#     df = grades.dropna().astype("int")
+#     return df
 
 
 print('wrangle.py functions loaded successfully.')
