@@ -212,4 +212,33 @@ def wrangle_grades():
     return df
 
 
+# Wrangling mall_customer database:
+def get_mall_data():
+    sql_query = '''
+            SELECT *
+            FROM customers
+            '''
+
+    df = pd.read_sql(sql_query, get_connection('mall_customers'))
+    return df
+
+
+# Prepping the mall data:
+
+def wrangle_mall_data():
+    df = get_mall_data()
+    # Splitting my data based on the target variable of tenure:
+    train_validate, test = train_test_split(df, test_size=.15, random_state=123)
+    
+    # Splitting the train_validate set into the separate train and validate datasets.
+    train, validate = train_test_split(train_validate, test_size=.20, random_state=123)
+    
+    # Printing the shape of each dataframe:
+    print(f'Shape of train df: {train.shape}')
+    print(f'Shape of validate df: {validate.shape}')
+    print(f'Shape of test df: {test.shape}')
+    return train, validate, test
+
+
+
 print('wrangle.py functions loaded successfully.')
