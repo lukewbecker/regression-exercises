@@ -6,6 +6,7 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 
 
@@ -19,25 +20,33 @@ def plot_variable_pairs(df):
 
 # Creating a function to change the tenure column (which is in months) into years. Note that this function will round down to zero, so in essence the years are a categorical value.
 
-def months_to_years(tenure_months, df):
-    df['tenure_years'] = round(tenure_months / 12, 0)
+def months_to_years(df):
+    df.assign(tenure_years = (df.tenure / 12).apply(math.floor))
+    return df
+
+# Creating the function months to years (using Group 2 [my team] method):
+
+def months_to_years_mine(tenure_months, df):
+    df['tenure_years'] = round(tenure_months // 12, 0)
     return df
 
 # This function will return 3 charts based on the telco data
 
-def plot_categorical_and_continuous_vars(cat_var, continuous_var,  df):
+def plot_categorical_and_continuous_vars(cat_var, cont_var, df):
     '''
-    This function will return 3 charts based on a categorical variable and a continuous variable. 
+    This function will take in a categorical variable and a continuous variable
+    and return 3 charts based on those variables.
     Note that the categorical variable is tied to the x axis, and the continuious variable to the y axis.
-    '''
-    plt.rc('font', size = 13)
-    plt.rc('figure', figsize = (13, 7))
-    sns.boxplot(data = df, y = continuous_var, x = cat_var)
+    ''' 
+    # Add in an if function that returns an error if the categorical variable isn't a categorical type(?)
+    # That may not be useful...
+    
+    
+    sns.barplot(data = df, y = cont_var, x = cat_var)
     plt.show()
-    sns.swarmplot(data = df, y = continuous_var, x = cat_var)
+    sns.violinplot(data = df, y = cont_var, x = cat_var)
     plt.show()
-    sns.violinplot(data = df, y = continuous_var, x = cat_var)
-    plt.show()
+    sns.boxplot(data = df, y = cont_var, x = cat_var)
 
 print('Functions loaded properly')
     

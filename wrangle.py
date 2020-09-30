@@ -204,12 +204,12 @@ def wrangle_telco():
 
 
 # Grades wrangle (acquire and prep) function for explore lesson walkthrough:
-# def wrangle_grades():
-#     grades = pd.read_csv("student_grades.csv")
-#     grades.drop(columns="student_id", inplace=True)
-#     grades.replace(r"^\s*$", np.nan, regex=True, inplace=True)
-#     df = grades.dropna().astype("int")
-#     return df
+def wrangle_grades():
+    grades = pd.read_csv("student_grades.csv")
+    grades.drop(columns="student_id", inplace=True)
+    grades.replace(r"^\s*$", np.nan, regex=True, inplace=True)
+    df = grades.dropna().astype("int")
+    return df
 
 
 print('wrangle.py functions loaded successfully.')
