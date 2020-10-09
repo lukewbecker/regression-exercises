@@ -400,6 +400,31 @@ def min_max_scale(X_train, X_validate, X_test, numeric_cols):
     return X_train_scaled, X_validate_scaled, X_test_scaled
 
 
+def min_max_scale(X_train, X_validate, X_test):
+    '''
+    this function takes in 3 dataframes with the same columns, 
+    a list of numeric column names (because the scaler can only work with numeric columns),
+    and fits a min-max scaler to the first dataframe and transforms all
+    3 dataframes using that scaler. 
+    it returns 3 dataframes with the same column names and scaled values. 
+    '''
+    # create the scaler object and fit it to X_train (i.e. identify min and max)
+    # if copy = false, inplace row normalization happens and avoids a copy (if the input is already a numpy array).
+    
+    scaler = MinMaxScaler(copy = True).fit(X_train)
+
+    X_train_scaled = scaler.transform(X_train)
+    X_validate_scaled = scaler.transform(X_validate)
+    X_test_scaled = scaler.transform(X_test)
+    X_train_scaled = pd.DataFrame(X_train_scaled, columns = X_train.columns.values).set_index([X_train.index.values])
+    X_validate_scaled = pd.DataFrame(X_validate_scaled, columns = X_validate.columns.values).set_index([X_validate.index.values])
+    X_test_scaled = pd.DataFrame(X_test_scaled, columns = X_test.columns.values).set_index([X_test.index.values])
+
+    
+    return X_train_scaled, X_validate_scaled, X_test_scaled
+
+
+
 
 def wrangle_telco_two_year(path):
     df = pd.read_csv(path, index_col = 0)
